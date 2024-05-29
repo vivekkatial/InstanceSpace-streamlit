@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "isa-app"
+version = "0.1.0"
+description = "Instance Space Analysis Streamlit App"
+authors = ["Vivek Katial <vivekkatial@gmail.com>"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+streamlit = "^1.33.0"
+pyvis = "^0.3.2"
+black = "^24.3.0"
+plotly = "^5.20.0"
+pynauty = "^2.8.6"
+seaborn = "^0.13.2"
+watchdog = "^4.0.0"
+networkx = "^3.3"
+python-dotenv = "^1.0.1"
+scipy = "^1.13.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
