@@ -5,7 +5,6 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
-
 # Set the default template to Plotly
 pio.templates.default = 'simple_white' # Set the default template to Plotly
 
@@ -24,7 +23,7 @@ def plot_feature_distribution(d_features, d_coords, feature):
     # Join the feature data with the coordinates
     d_feature_coords = pd.merge(d_coords, d_features, on='Row')
     # Plot the feature distribution
-    fig = px.scatter(d_feature_coords, x='z_1', y='z_2', color=feature, hover_data=['Row'], color_continuous_scale='sunsetdark')
+    fig = px.scatter(d_feature_coords, x='z_1', y='z_2', color=feature, hover_data=['Row'], color_continuous_scale='plasma')
     # Make the chart square
     fig.update_xaxes(scaleanchor="y", scaleratio=1)
     # Make the marker size smaller
@@ -73,7 +72,7 @@ def plot_performance_distribution(d_algorithm, d_coords, algorithm, binary_scale
         
         fig = px.scatter(d_algorithm_coords, x='z_1', y='z_2', color=algorithm, hover_data=['Row'], color_discrete_map={'GOOD': 'blue', 'BAD': 'orange'})
     else:
-        fig = px.scatter(d_algorithm_coords, x='z_1', y='z_2', color=algorithm, hover_data=['Row'], color_continuous_scale='sunsetdark')
+        fig = px.scatter(d_algorithm_coords, x='z_1', y='z_2', color=algorithm, hover_data=['Row'], color_continuous_scale='plasma')
     # Make the chart square
     fig.update_xaxes(scaleanchor="y", scaleratio=1)
     # Make the marker size smaller
@@ -93,6 +92,13 @@ def plot_performance_distribution(d_algorithm, d_coords, algorithm, binary_scale
     fig.update_layout(coloraxis_colorbar=dict(title=''))
     # remove legend title
     fig.update_layout(legend_title_text='')
+    # Adjust the legend markers size
+    fig.update_layout(
+        legend=dict(
+            itemsizing='constant',
+            font=dict(size=12),
+        )
+    )
 
     # update the title to be the feature (in title case - remove _ and capitalize)
     fig.update_layout(title_text=algorithm.replace("_", " ").upper())
@@ -139,6 +145,16 @@ def plot_best_algorithm(d_portfolio, d_coords):
     )
     # remove the legend title
     fig.update_layout(legend_title_text='')
+
+    # Adjust the legend markers size
+    fig.update_layout(
+        legend=dict(
+            itemsizing='constant',
+            font=dict(size=12),
+        )
+    )
+
+
     # update the title to be the feature (in title case - remove _ and capitalize)
     fig.update_layout(title_text='Best Algorithm')
 
@@ -230,6 +246,14 @@ def plot_svm_selection_single_algo(d_coords, d_svm_selection, algorithm, experim
     )
     # Remove the legend title   
     fig.update_layout(legend_title_text='')
+
+    # Adjust the legend markers size
+    fig.update_layout(
+        legend=dict(
+            itemsizing='constant',
+            font=dict(size=12),
+        )
+    )
     
     # update the title to be the feature (in title case - remove _ and capitalize)
     fig.update_layout(title_text=f'SVM Selection for {algorithm.replace("_", " ").upper()}')
@@ -356,6 +380,14 @@ def plot_svm_selector(d_coords, d_svm_preds, svm_table, experiment_dir, show_foo
     # Remove the legend title   
     fig.update_layout(legend_title_text='')
 
+    # Adjust the legend markers size
+    fig.update_layout(
+        legend=dict(
+            itemsizing='constant',
+            font=dict(size=12),
+        )
+    )
+
     fig.update_xaxes(showline=True,
             linewidth=1,
             linecolor='black',
@@ -401,6 +433,14 @@ def plot_source_distribution(d_coords, d_bounds, bounds=False):
     fig.update_layout(coloraxis_colorbar=dict(title=''))
     # Remove the legend title
     fig.update_layout(legend_title_text='')
+
+    # Adjust the legend markers size
+    fig.update_layout(
+        legend=dict(
+            itemsizing='constant',
+            font=dict(size=12),
+        )
+    )
 
     # update the title to be the feature (in title case - remove _ and capitalize)
     fig.update_layout(title_text='Source')

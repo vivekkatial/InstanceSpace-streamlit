@@ -28,6 +28,7 @@ if "experiment" in st.session_state:
     d_features_raw = st.session_state.d_features_raw
     d_algorithm_raw = st.session_state.d_algorithm_raw
     d_algorithm_process = st.session_state.d_algorithm_process
+    d_algorithm_binary = st.session_state.d_algorithm_binary
     d_svm_preds = st.session_state.d_svm_preds
     d_svm_selection = st.session_state.d_svm_selection
     d_best_algo = st.session_state.d_best_algo
@@ -70,6 +71,7 @@ if "experiment" in st.session_state:
         # Make the source distribution plot
         source_fig = plot_source_distribution(d_coords, d_bounds)
         source_fig.update_layout(width=600, height=600)
+        # Make the legend horizontal
         source_fig.update_layout(legend=dict(orientation="h", xanchor="center", x=0.5, y=-0.2))
         source_fig.write_image(os.path.join("temp", "source_distribution.png"), scale=3)
         
@@ -78,10 +80,11 @@ if "experiment" in st.session_state:
 
         # Create a vector for all features
         features = d_features.columns[1:]
-        for i, feature in enumerate(features, start=2):
+        for i, feature in enumerate(features):
             fig_feat = plot_feature_distribution(d_features, d_coords, feature)
             fig_feat.update_layout(width=600, height=600)
             fig_feat.write_image(os.path.join("temp", f"feature_{feature}_distribution.png"), scale=3)
+
 
             update_progress_bar(progress_bar, progress_text, 2 + (i+1)/len(features), 14)
             
@@ -95,15 +98,25 @@ if "experiment" in st.session_state:
 
         # Create a vector for all algorithms
         algorithms = d_algorithm_raw.columns[1:]
-        for i, algorithm in enumerate(algorithms, start=4):
+        for i, algorithm in enumerate(algorithms):
             fig_algo = plot_performance_distribution(d_algorithm_process, d_coords, algorithm)
             fig_algo.update_layout(width=600, height=600)
             fig_algo.write_image(os.path.join("temp", f"performance_{algorithm}_distribution.png"), scale=3)
 
-            # Do the raw features
+
+            # Do the raw performance
             fig_algo_raw = plot_performance_distribution(d_algorithm_raw, d_coords, algorithm)
             fig_algo_raw.update_layout(width=600, height=600)
             fig_algo_raw.write_image(os.path.join("temp", f"performance_{algorithm}_raw_distribution.png"), scale=3)
+
+            # Do the binary performance
+            fig_algo_bin = plot_performance_distribution(d_algorithm_binary, d_coords, algorithm, binary_scale=True)
+            fig_algo_bin.update_layout(width=600, height=600)
+            fig_algo_bin.write_image(os.path.join("temp", f"performance_{algorithm}_binary_distribution.png"), scale=3)
+
+            update_progress_bar(progress_bar, progress_text, 4 + (i+1)/len(algorithms), 14)
+
+
 
         # Create the best algorithm plot
         fig_best_algo = plot_best_algorithm(d_coords, d_best_algo)
@@ -119,10 +132,11 @@ if "experiment" in st.session_state:
             fig_svm = plot_svm_selection_single_algo(d_coords, d_svm_preds, algorithm, "temp_extracted_files/" + experiment, show_footprints=True)
             fig_svm.update_layout(width=600, height=600)
             fig_svm.write_image(os.path.join("temp", f"svm_selection_{algorithm}.png"), scale=3)
+            # Update progress bar
             update_progress_bar(progress_bar, progress_text, 13, 14)
 
         # Create the SVM selector plot
-        fig_svm_selector = plot_svm_selector(d_coords, d_svm_preds, d_svm, experiment_dir="temp_extracted_files/" + experiment, show_footprints=True)
+        fig_svm_selector = plot_svm_selector(d_coords, d_svm_preds, d_svm, "temp_extracted_files/" + experiment, show_footprints=True)
         fig_svm_selector.update_layout(width=600, height=600)
         fig_svm_selector.update_layout(legend=dict(orientation="h", xanchor="center", x=0.5, y=-0.2))
         fig_svm_selector.write_image(os.path.join("temp", "svm_selection.png"), scale=3)
@@ -141,7 +155,7 @@ if "experiment" in st.session_state:
             st.download_button(
                 label="Download as Zip",
                 data=f,
-                file_name=f"{experiment}.zip",
+                file_name=f"{experiment}-plots.zip",
                 mime="application/zip",
                 key="callback",
             )
@@ -149,6 +163,7 @@ if "experiment" in st.session_state:
         st.write("Download complete.")
         progress_bar.progress(100)
         progress_text.text("Progress: 100%")
+        # Delete the temporary directory
         shutil.rmtree("temp")
 
     col1, col2 = st.columns(2)
@@ -157,13 +172,6 @@ if "experiment" in st.session_state:
         st.subheader("Source Distribution")
         fig = plot_source_distribution(d_coords, d_bounds)
         st.plotly_chart(fig)
-        download_source = st.button("Download Plot", key="source_plot")
-        if download_source:
-            st.write("Downloading plot...")
-            fig.update_layout(width=600, height=600)
-            fig.update_layout(legend=dict(orientation="h", xanchor="center", x=0.5, y=-0.2))
-            fig.write_image(os.path.join("temp_extracted_files", experiment, "source_distribution.png"), scale=3)
-            st.write("Download complete.")
 
     with col2:
         st.subheader("Transformation")
@@ -205,11 +213,6 @@ if "experiment" in st.session_state:
 
         fig = plot_feature_distribution(d_features, d_coords, feature)
         st.plotly_chart(fig, use_container_width=True)
-        download_feat = st.button("Download Plot", key="feature_plot")
-        if download_feat:
-            st.write("Downloading plot...")
-            fig.update_layout(width=600, height=600)
-            fig.write_image(os.path.join("temp_extracted_files", experiment, f"feature_{feature}_{feature_data}_distribution.png"), scale=3)
 
     with tabs[1]:
         st.subheader("Performance Distribution")
@@ -228,24 +231,10 @@ if "experiment" in st.session_state:
         fig_algo_bin = plot_performance_distribution(d_algorithm_binary, d_coords, algorithm, binary_scale=True)
         st.plotly_chart(fig_algo_bin, use_container_width=True)
 
-        download_perf = st.button("Download Plot", key="performance_plot")
-        if download_perf:
-            st.write("Downloading plot...")
-            fig_algo_perf.update_layout(width=600, height=600)
-            fig_algo_bin.update_layout(width=600, height=600)
-            fig_algo_perf.write_image(os.path.join("temp_extracted_files", experiment, f"performance_{algorithm}_{algorithm_data}_distribution.png"), scale=3)
-            fig_algo_bin.write_image(os.path.join("temp_extracted_files", experiment, f"performance_{algorithm}_{algorithm_data}_binary_distribution.png"), scale=3)
-
     with tabs[2]:
         st.subheader("Best Algorithm")
         fig = plot_best_algorithm(d_coords, d_best_algo)
         st.plotly_chart(fig, use_container_width=True)
-        download_best_algo = st.button("Download Plot", key="best_algo_plot")
-        if download_best_algo:
-            st.write("Downloading plot...")
-            fig.update_layout(width=600, height=600)
-            fig.update_layout(legend=dict(orientation="h", xanchor="center", x=0.5, y=-0.2))
-            fig.write_image(os.path.join("temp_extracted_files", experiment, "best_algorithm_distribution.png"), scale=3)
 
     with tabs[3]:
         st.subheader("SVM Selection")
@@ -258,23 +247,12 @@ if "experiment" in st.session_state:
             fig_svm = plot_svm_selection_single_algo(d_coords, d_svm_preds, algorithm_svm, "temp_extracted_files/" + experiment)
 
         st.plotly_chart(fig_svm, use_container_width=True)
-        download_svm = st.button("Download Plot", key="svm_plot")
-        if download_svm:
-            st.write("Downloading plot...")
-            fig_svm.update_layout(width=600, height=600)
-            fig_svm.write_image(os.path.join("temp_extracted_files", experiment, f"svm_selection_{algorithm_svm}.png"), scale=3)
 
     with tabs[4]:
         st.subheader("SVM Selection")
         show_bounds = st.checkbox("Show Footprints")
         fig_svm_selector = plot_svm_selector(d_coords, d_svm_preds, d_svm, experiment_dir="temp_extracted_files/" + experiment, show_footprints=show_bounds)
         st.plotly_chart(fig_svm_selector, use_container_width=True)
-        download_svm_selector = st.button("Download Plot", key="svm_selector_plot")
-        if download_svm_selector:
-            st.write("Downloading plot...")
-            fig_svm_selector.update_layout(legend=dict(orientation="h", xanchor="center", x=0.5, y=-0.2))
-            fig_svm_selector.update_layout(width=600, height=600)
-            fig_svm_selector.write_image(os.path.join("temp_extracted_files", experiment, "svm_selection.png"), scale=3)
 
     with tabs[5]:
         st.subheader("Model Information")

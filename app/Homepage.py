@@ -86,6 +86,8 @@ def process_zip_file(uploaded_file):
         # Read the algorithm table
         d_algorithm_raw = pd.read_csv(os.path.join(experiment_dir, "algorithm_raw.csv"))
         d_algorithm_process = pd.read_csv(os.path.join(experiment_dir, "algorithm_process.csv"))
+        d_algorithm_binary = pd.read_csv(os.path.join(experiment_dir, "algorithm_bin.csv"))
+
         
         # Read the SVM table and best algorithm
         d_svm_preds = pd.read_csv(os.path.join(experiment_dir, "algorithm_svm.csv"))
@@ -112,9 +114,21 @@ def process_zip_file(uploaded_file):
         st.session_state.d_features_raw = d_features_raw
         st.session_state.d_algorithm_raw = d_algorithm_raw
         st.session_state.d_algorithm_process = d_algorithm_process
+        st.session_state.d_algorithm_binary = d_algorithm_binary
         st.session_state.d_svm_preds = d_svm_preds
         st.session_state.d_svm_selection = d_svm_selection
         st.session_state.d_best_algo = d_best_algo
+
+        # Read in all the algorithms (excluding the first column from d_best_algo)
+        algorithms = d_algorithm_raw.columns[1:]
+        # Check if footprint files exist for each algorithm
+        for algo in algorithms:
+            if not os.path.exists(os.path.join(experiment_dir, f"footprint_{algo}_best.csv")):
+                st.warning(f"Missing 'best' footprint file for algorithm: {algo}")
+            if not os.path.exists(os.path.join(experiment_dir, f"footprint_{algo}_good.csv")):
+                st.warning(f"Missing 'good' footprint file for algorithm: {algo}")
+        
+
 
 if uploaded_file:
     process_zip_file(uploaded_file)
@@ -134,6 +148,8 @@ if "d_algorithm_raw" in st.session_state:
     st.write("Algorithm Raw DataFrame", st.session_state.d_algorithm_raw)
 if "d_algorithm_process" in st.session_state:
     st.write("Algorithm Process DataFrame", st.session_state.d_algorithm_process)
+if "d_algorithm_binary" in st.session_state:
+    st.write("Algorithm Binary DataFrame", st.session_state.d_algorithm_binary)
 if "d_svm_preds" in st.session_state:
     st.write("SVM Predictions DataFrame", st.session_state.d_svm_preds)
 if "d_svm_selection" in st.session_state:
