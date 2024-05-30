@@ -12,6 +12,10 @@ import sys
 
 from src.visualize import *
 
+if not st.session_state.get('authentication_status', False):
+    st.info('Please Login from the Home page and try again.')
+    st.stop()
+
 st.set_page_config(page_title="Instance Space Analysis", page_icon="📈", layout="wide", initial_sidebar_state="expanded")
 
 st.markdown("# Instance Space Analysis")

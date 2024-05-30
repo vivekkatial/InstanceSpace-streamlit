@@ -19,6 +19,7 @@ networkx = "^3.3"
 python-dotenv = "^1.0.1"
 scipy = "^1.13.1"
 kaleido = "0.2.1"
+streamlit-authenticator = "^0.3.2"
 
 
 [tool.poetry.group.dev.dependencies]
