@@ -18,16 +18,12 @@ if os.path.exists("temp_extracted_files"):
 
 
 def st_authenticator():
-    with open('.secrets/config.yaml') as file:
-        config = yaml.load(file, Loader=SafeLoader)
-        file.close()
-
     authenticator = stauth.Authenticate(
-        config['credentials'],
-        config['cookie']['name'],
-        config['cookie']['key'],
-        config['cookie']['expiry_days'],
-        config['preauthorized']
+        st.secrets['credentials'].to_dict(),
+        st.secrets['cookie']['name'],
+        st.secrets['cookie']['key'],
+        st.secrets['cookie']['expiry_days'],
+        st.secrets['preauthorized']
     )
 
     return authenticator
